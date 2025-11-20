@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#071229; --card:#0f1724; --muted:#cbd5e1; --accent1:#6a11cb; --accent2:#2575fc;
+    }
+    body{margin:0; font-family:'Poppins',sans-serif; background: linear-gradient(135deg,#071229,#12203a); color:var(--muted);}
+    header{padding:18px 28px; display:flex; justify-content:space-between; align-items:center;}
+    header h2{margin:0;color:white;}
+    .wrap{max-width:1100px;margin:12px auto;padding:18px; display:grid; grid-template-columns:1fr; gap:18px;}
+    .card{background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.04); box-shadow:0 8px 30px rgba(2,6,23,0.5);}
+    .charts{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+    canvas{width:100%!important; height:320px!important;}
+    .stats-row{display:flex; gap:14px; margin-top:10px;}
+    .stat-box{flex:1; padding:12px; border-radius:10px; background:rgba(255,255,255,0.02); text-align:center}
+    .stat-box h3{margin:6px 0;color:#fff}
+    .logout{background:transparent;border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:8px 12px;border-radius:10px; text-decoration:none}
+    @media(max-width:900px){ .charts{grid-template-columns:1fr} canvas{height:260px!important} }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Admin Dashboard Analytics</h2>
+    <div>
+      <a class="logout" href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card charts">
+      <div>
+        <h3 style="margin-top:0;color:#fff">Fake vs Real</h3>
+        <canvas id="pieChart"></canvas>
+        <div class="stats-row" style="margin-top:12px;">
+          <div class="stat-box"><h3 style="color:#ff6b6b">{{ fake }}</h3><div class="small">Fake Jobs</div></div>
+          <div class="stat-box"><h3 style="color:#7ee0a5">{{ real }}</h3><div class="small">Real Jobs</div></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0;color:#fff">Predictions Per Day</h3>
+        <canvas id="lineChart"></canvas>
+        <div class="small" style="margin-top:10px;color:#9fb0d2">Daily counts grouped by date.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;color:#fff">Recent Prediction Logs</h3>
+      <div style="max-height:220px; overflow:auto; margin-top:12px;">
+        <!-- You can optionally render a table of recent logs here by extending Flask route to pass logs -->
+        <div style="color:#9fb0d2">If you want, I can add a table listing recent predictions (time, label, confidence).</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* Pie Chart */
+const pieCtx = document.getElementById('pieChart');
+new Chart(pieCtx, {
+  type: 'pie',
+  data: {
+    labels: ['Fake Jobs','Real Jobs'],
+    datasets:[{
+      data: [{{ fake }}, {{ real }}],
+      backgroundColor:['#ff6b6b','#7ee0a5'],
+      borderWidth:0
+    }]
+  },
+  options:{ responsive:true, maintainAspectRatio:false }
+});
+
+/* Line Chart */
+const lineCtx = document.getElementById('lineChart');
+const labels = {{ dates | safe }};
+const dataVals = {{ counts | safe }};
+new Chart(lineCtx, {
+  type:'line',
+  data:{
+    labels: labels,
+    datasets:[{
+      label:'Predictions',
+      data: dataVals,
+      borderColor:'#2575fc',
+      backgroundColor: 'rgba(37,117,252,0.06)',
+      fill:true,
+      tension:0.35,
+      pointRadius:4
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    scales:{
+      x:{ ticks:{ color:'#9fb0d2' }, grid:{ color:'rgba(255,255,255,0.02)' } },
+      y:{ ticks:{ color:'#9fb0d2' }, grid:{ color:'rgba(255,255,255,0.02)' }, beginAtZero:true }
+    }
+  }
+});
+</script>
+</body>
+</html>
+
